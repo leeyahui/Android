@@ -1,5 +1,7 @@
 package com.bjgoodwill.jhecis.bean;
 
+import java.util.Date;
+
 public class NursingOrderListBean {
 
     private int ISDELETE;
@@ -11,8 +13,8 @@ public class NursingOrderListBean {
     private int ORDERSUBNO;
     private int ITEMCLASS;
     private int STATUS;
-    private String APPLYTIME;
-    private String PLANUSETIME;
+    private Date APPLYTIME;
+    private Date PLANUSETIME;
     private Object EXECTIME;
     private Object CHECKTIME;
     private Object CHECKCODE;
@@ -139,19 +141,19 @@ public class NursingOrderListBean {
         this.STATUS = STATUS;
     }
 
-    public String getAPPLYTIME() {
+    public Date getAPPLYTIME() {
         return APPLYTIME;
     }
 
-    public void setAPPLYTIME(String APPLYTIME) {
+    public void setAPPLYTIME(Date APPLYTIME) {
         this.APPLYTIME = APPLYTIME;
     }
 
-    public String getPLANUSETIME() {
+    public Date getPLANUSETIME() {
         return PLANUSETIME;
     }
 
-    public void setPLANUSETIME(String PLANUSETIME) {
+    public void setPLANUSETIME(Date PLANUSETIME) {
         this.PLANUSETIME = PLANUSETIME;
     }
 
