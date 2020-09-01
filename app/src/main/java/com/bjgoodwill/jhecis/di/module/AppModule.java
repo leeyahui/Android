@@ -2,6 +2,8 @@ package com.bjgoodwill.jhecis.di.module;
 
 import com.bjgoodwill.jhecis.AppUtis;
 import com.bjgoodwill.jhecis.retro.AppNursingInterface;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javax.inject.Singleton;
 
@@ -15,10 +17,13 @@ public class AppModule {
     @Singleton
     @Provides
     Retrofit providerRetrofit() {
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                .create();
         return new Retrofit
                 .Builder()
                 .baseUrl(AppUtis.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }
 
