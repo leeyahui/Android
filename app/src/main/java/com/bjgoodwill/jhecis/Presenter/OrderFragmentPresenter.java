@@ -14,21 +14,23 @@ import com.bjgoodwill.jhecis.bean.NursingOrderListBean;
 import com.bjgoodwill.jhecis.fragment.OrderFragment;
 import com.bjgoodwill.jhecis.retro.AppNursingInterface;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static java.util.stream.Collectors.toList;
 
 public class OrderFragmentPresenter {
     private OrderFragment fragment;
@@ -49,7 +51,9 @@ public class OrderFragmentPresenter {
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String startDate = sdf.format(cal.getTime());
-        pvid = "83f9139b-89a7-46f3-8b0d-1de85611b547";
+        if (pvid == null || pvid.isEmpty()) {
+            pvid = "83f9139b-89a7-46f3-8b0d-1de85611b547";
+        }
         Call<GetNursingOrderList> getOrders = appNursingInterface.GetNursingOrdersLists(pvid, startDate, sdf.format(new Date()));
         getOrders.enqueue(new Callback<GetNursingOrderList>() {
             @Override
@@ -58,87 +62,46 @@ public class OrderFragmentPresenter {
                 if (orderListBeans != null) {
                     //Toast.makeText(OrderFragment.this.getContext(), "获取医嘱成功", Toast.LENGTH_SHORT).show();
                     //分组
-                    Map<String, List<NursingOrderListBean>> groupMap = new HashMap<String, List<NursingOrderListBean>>();
-                    for (int i = 0; i < orderListBeans.size(); i++) {
-                        NursingOrderListBean order = orderListBeans.get(i);
-                        String groupId = order.getITEMCLASS() + "|" + sdf.format(order.getPLANUSETIME()) + "|" + order.getGROUPNO() + "|" + order.getORDERID();
-                        if (groupMap.containsKey(groupId)) {
-                            Objects.requireNonNull(groupMap.get(groupId)).add(order);
-                        } else {
-                            List<NursingOrderListBean> list = new ArrayList<>();
-                            list.add(order);
-                            groupMap.put(groupId, list);
-                        }
-                    }
+                    Map<String, List<NursingOrderListBean>> groupMap = orderListBeans.stream().collect(Collectors.groupingBy(a -> {
+                        return (a.getITEMCLASS() + "|" + sdf.format(a.getPLANUSETIME()) + "|" + a.getGROUPNO() + "|" + a.getORDERID());
+                    }));
+
+                    //合并分组信息（医嘱内容、剂量）
                     List<NursingOrderListBean> newList = new ArrayList<>();
                     for (Map.Entry<String, List<NursingOrderListBean>> entry : groupMap.entrySet()) {
                         List<NursingOrderListBean> list = entry.getValue();
                         NursingOrderListBean order = list.get(0);
                         if (list.size() > 1) {
-                            String itemName = "";
-                            Comparator<NursingOrderListBean> subNoComparator = new Comparator<NursingOrderListBean>() {
-                                @Override
-                                public int compare(NursingOrderListBean o1, NursingOrderListBean o2) {
-                                    int a = o1.getORDERSUBNO() - o2.getORDERSUBNO();
-                                    if (a != 0) {
-                                        return a > 0 ? -1 : 1;
-                                    }
-                                    return 0;
-                                }
-                            };
-                            int minSubNo = Collections.min(list, subNoComparator).getORDERSUBNO();
-                            int maxSubNo = Collections.max(list, subNoComparator).getORDERSUBNO();
-                            Collections.sort(list, subNoComparator);
+                            int minSubNo = list.stream().mapToInt(a -> a.getORDERSUBNO()).min().getAsInt();
+                            int maxSubNo = list.stream().mapToInt(a -> a.getORDERSUBNO()).max().getAsInt();
+                            list.sort(Comparator.comparing(a -> a.getORDERSUBNO()));
                             for (NursingOrderListBean o1 : list) {
-                                String tempItemName = o1.getITEMNAME();
                                 if (minSubNo != maxSubNo) {
                                     int orderSubNo = o1.getORDERSUBNO();
                                     if (orderSubNo == minSubNo)
-                                        tempItemName = "┏ " + tempItemName;
+                                        o1.setITEMNAME("┏ " + o1.getITEMNAME());
                                     else if (orderSubNo == maxSubNo)
-                                        tempItemName = "┗ " + tempItemName;
+                                        o1.setITEMNAME("┗ " + o1.getITEMNAME());
                                     else
-                                        tempItemName = "┣ " + tempItemName;
-                                }
-                                if (itemName.isEmpty()) {
-                                    itemName = tempItemName;
-                                } else {
-                                    itemName = itemName + "\n" + tempItemName;
+                                        o1.setITEMNAME("┣ " + o1.getITEMNAME());
                                 }
                             }
-                            order.setITEMNAME(itemName);
+                            List<String> itemnames = list.stream().map(a -> a.getITEMNAME()).collect(toList());
+                            List<String> dosages = list.stream().map(a -> a.getDOSAGEUNIT()).collect(toList());
+                            order.setITEMNAME(StringUtils.join(itemnames, System.lineSeparator()));
+                            order.setDOSAGEUNIT(StringUtils.join(dosages, System.lineSeparator()));
                         }
                         newList.add(order);
                     }
                     //排序
-                    Collections.sort(newList, new Comparator<NursingOrderListBean>() {
-                        @Override
-                        public int compare(NursingOrderListBean o1, NursingOrderListBean o2) {
-                            int a = o2.getAPPLYTIME().compareTo(o1.getAPPLYTIME());
-                            if (a != 0) {
-                                return a > 0 ? -1 : 1;
-                            }
-                            a = o1.getITEMCLASS() - o2.getITEMCLASS();
-                            if (a != 0) {
-                                return a > 0 ? -1 : 1;
-                            }
-                            a = o2.getPLANUSETIME().compareTo(o1.getPLANUSETIME());
-                            if (a != 0) {
-                                return a > 0 ? -1 : 1;
-                            }
-                            a = o1.getGROUPNO() - o2.getGROUPNO();
-                            if (a != 0) {
-                                return a > 0 ? -1 : 1;
-                            }
-                            a = o1.getORDERSUBNO() - o2.getORDERSUBNO();
-                            if (a != 0) {
-                                return a > 0 ? -1 : 1;
-                            }
-                            return 0;
-                        }
-                    });
-                    load.onLoadFinish(newList);
+                    newList.sort(Comparator
+                            .comparing(NursingOrderListBean::getAPPLYTIME)
+                            .thenComparing(NursingOrderListBean::getITEMCLASS)
+                            .thenComparing(NursingOrderListBean::getPLANUSETIME)
+                            .thenComparing(NursingOrderListBean::getGROUPNO)
+                            .thenComparing(NursingOrderListBean::getORDERSUBNO));
 
+                    load.onLoadFinish(newList);
                 }
             }
 

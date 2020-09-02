@@ -44,8 +44,8 @@ public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.View
             holder.txtOrderDosage.setText(order.getDOSAGEUNIT());
         }
         holder.txtOrderOperator.setText(order.getOPDOCTORNAME());
-        holder.txtOrderOptime.setText(sdf.format(order.getAPPLYTIME()));
-        holder.txtOrderPlantime.setText(sdf.format(order.getPLANUSETIME()));
+//        holder.txtOrderOptime.setText(sdf.format(order.getAPPLYTIME()));
+//        holder.txtOrderPlantime.setText(sdf.format(order.getPLANUSETIME()));
     }
 
     @Override
@@ -60,10 +60,10 @@ public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.View
         TextView txtOrderDosage;
         @BindView(R.id.txt_rvorder_operator)
         TextView txtOrderOperator;
-        @BindView(R.id.txt_rvorder_optime)
-        TextView txtOrderOptime;
-        @BindView(R.id.txt_rvorder_plantime)
-        TextView txtOrderPlantime;
+//        @BindView(R.id.txt_rvorder_optime)
+//        TextView txtOrderOptime;
+//        @BindView(R.id.txt_rvorder_plantime)
+//        TextView txtOrderPlantime;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="30dp"
+    android:minHeight="60dp"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:minHeight="60dp"
         android:orientation="horizontal">
 
         <TextView
@@ -34,25 +35,25 @@
             tools:text="开立人" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:orientation="horizontal">-->
 
-        <TextView
-            android:id="@+id/txt_rvorder_optime"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="10dp"
-            android:gravity="center_vertical"
-            tools:text="开立时间" />
+<!--        <TextView-->
+<!--            android:id="@+id/txt_rvorder_optime"-->
+<!--            android:layout_width="200dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_marginStart="10dp"-->
+<!--            android:gravity="center_vertical"-->
+<!--            tools:text="开立时间" />-->
 
-        <TextView
-            android:id="@+id/txt_rvorder_plantime"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            tools:text="计划时间" />
-    </LinearLayout>
+<!--        <TextView-->
+<!--            android:id="@+id/txt_rvorder_plantime"-->
+<!--            android:layout_width="200dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:gravity="center_vertical"-->
+<!--            tools:text="计划时间" />-->
+<!--    </LinearLayout>-->
 
 </LinearLayout>
